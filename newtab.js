@@ -59,13 +59,14 @@ function createShare(shareBaseUrl, iconUrl, href){
 
 function createRajz(parsedResponse){
   var rajz = getFirst(parsedResponse);
+  var rajzUrl = encodeURIComponent(rajz.LapURL != '' ? rajz.LapURL : rajz.URL);
   document.getElementById('kepdiv').innerHTML = '';
   document.getElementById('kepdiv').appendChild(createAElement(rajz.LapURL != '' ? rajz.LapURL : rajz.URL, createImageElement(rajz.URL)));
   addToShareContainer(
-              createShare(mailToUrl, mailToIconUrl, rajz.LapURL != '' ? rajz.LapURL : rajz.URL),
-              createShare(faceShareUrl, faceIconUrl, rajz.LapURL != '' ? rajz.LapURL : rajz.URL),
-              createShare(tumbrlShareUrl, tumblrIconUrl, rajz.LapURL != '' ? rajz.LapURL : rajz.URL),
-              createShare(twitterShareUrl, twitterIconUrl, rajz.LapURL != '' ? rajz.LapURL : rajz.URL)
+              createShare(mailToUrl, mailToIconUrl, rajzUrl),
+              createShare(faceShareUrl, faceIconUrl, rajzUrl),
+              createShare(tumbrlShareUrl, tumblrIconUrl, rajzUrl),
+              createShare(twitterShareUrl, twitterIconUrl, rajzUrl)
               );
 }
 
