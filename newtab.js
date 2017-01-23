@@ -1,3 +1,16 @@
+/* Social Network Share */
+var mailToUrl = 'mailto:?subject=Napirajz&body=';
+var mailToIconUrl = './mailto-logo.png';
+
+var faceShareUrl = 'https://www.facebook.com/sharer/sharer.php?u=';
+var faceIconUrl = './fb-logo.png';
+
+var tumbrlShareUrl = 'http://tumblr.com/widgets/share/tool?canonicalUrl=';
+var tumblrIconUrl = './tumblr-logo.png';
+
+var twitterShareUrl = 'https://twitter.com/intent/tweet?text=';
+var twitterIconUrl = './twitter-logo.png';
+
 function httpGet(url, callback){
   var xmlHttp = new XMLHttpRequest();
   xmlHttp.onreadystatechange = function(){
@@ -17,6 +30,45 @@ function createImageElement(imageUrl){
   return imgTag;
 }
 
+function createAElement(href, imgTag){
+  var aTag = document.createElement("a");
+  aTag.setAttribute('href', href);
+  aTag.appendChild(imgTag);
+  return aTag;
+}
+
+function addToShareContainer(){
+  var shareContainer = document.getElementById('shareContainer');
+  shareContainer.innerHTML = '';
+  var i;
+  for (i = 0; i < arguments.length; i++) {
+    shareContainer.appendChild(arguments[i]);
+  }
+}
+
+function createShare(shareBaseUrl, iconUrl, href){
+  var shareTag = document.createElement("a");
+  shareTag.setAttribute('href', shareBaseUrl + href);
+  shareTag.setAttribute('target', '_blank');
+  shareTag.setAttribute('style', 'margin: 10px;')
+  var icon = document.createElement("img");
+  icon.setAttribute('src', iconUrl);
+  shareTag.appendChild(icon);
+  return shareTag;
+}
+
+function createRajz(parsedResponse){
+  var rajz = getFirst(parsedResponse);
+  document.getElementById('kepdiv').innerHTML = '';
+  document.getElementById('kepdiv').appendChild(createAElement(rajz.LapURL != '' ? rajz.LapURL : rajz.URL, createImageElement(rajz.URL)));
+  addToShareContainer(
+              createShare(mailToUrl, mailToIconUrl, rajz.LapURL != '' ? rajz.LapURL : rajz.URL),
+              createShare(faceShareUrl, faceIconUrl, rajz.LapURL != '' ? rajz.LapURL : rajz.URL),
+              createShare(tumbrlShareUrl, tumblrIconUrl, rajz.LapURL != '' ? rajz.LapURL : rajz.URL),
+              createShare(twitterShareUrl, twitterIconUrl, rajz.LapURL != '' ? rajz.LapURL : rajz.URL)
+              );
+}
+
 function getFormattedDate(){
   var today = new Date();
   return today.getFullYear() + '-' + today.getMonth()+1 + '-' + today.getDate();
@@ -25,14 +77,13 @@ function getFormattedDate(){
 function getRandom(){
   httpGet('http://kereso.napirajz.hu/abort.php?guppi&json', 
           function(responseRand){
-            document.getElementById('kepdiv').innerHTML = '';
-            document.getElementById('kepdiv').appendChild(createImageElement(getFirst(JSON.parse(responseRand))));
+            createRajz(JSON.parse(responseRand));
           });
 }
 
 function getFirst(responseJson){
   for(pic in responseJson){
-    return responseJson[pic].URL;
+    return responseJson[pic];
   }
 }
 
@@ -45,8 +96,7 @@ function getToday(){
       if(parsedResponse.length == 0){
         document.getElementById('kepdiv').innerHTML = 'Nem volt feltöltve rajz a napiszörcsre mai dátummal :('
       }else{
-        document.getElementById('kepdiv').innerHTML = '';
-        document.getElementById('kepdiv').appendChild(createImageElement(getFirst(parsedResponse)));
+        createRajz(parsedResponse);
       }
     });
 }
