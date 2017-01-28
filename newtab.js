@@ -57,11 +57,18 @@ function createShare(shareBaseUrl, iconUrl, href){
   return shareTag;
 }
 
+function createH2(text){
+  var h2 = document.createElement('h2');
+  h2.innerHTML = text;
+  return h2;
+}
+
 function createRajz(parsedResponse){
   var rajz = getFirst(parsedResponse);
   var rajzUrl = encodeURIComponent(rajz.LapURL != '' ? rajz.LapURL : rajz.URL);
   document.getElementById('kepdiv').innerHTML = '';
   document.getElementById('kepdiv').appendChild(createAElement(rajz.LapURL != '' ? rajz.LapURL : rajz.URL, createImageElement(rajz.URL)));
+  document.getElementById('cimDiv').appendChild(createH2(rajz.Cim));
   addToShareContainer(
               createShare(mailToUrl, mailToIconUrl, rajzUrl),
               createShare(faceShareUrl, faceIconUrl, rajzUrl),
