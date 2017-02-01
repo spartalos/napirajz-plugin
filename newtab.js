@@ -68,6 +68,7 @@ function createRajz(parsedResponse){
   var rajzUrl = encodeURIComponent(rajz.LapURL != '' ? rajz.LapURL : rajz.URL);
   document.getElementById('kepdiv').innerHTML = '';
   document.getElementById('kepdiv').appendChild(createAElement(rajz.LapURL != '' ? rajz.LapURL : rajz.URL, createImageElement(rajz.URL)));
+  document.getElementById('cimDiv').innerHTML = '';
   document.getElementById('cimDiv').appendChild(createH2(rajz.Cim));
   addToShareContainer(
               createShare(mailToUrl, mailToIconUrl, rajzUrl),
