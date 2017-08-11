@@ -3,7 +3,7 @@
 
   "name": "Napirajz plugin",
   "description": "Napirajz már a böngésződben is. Új tab-ra kattintva aktuális vagy random rajzok rombolják a munkakedvet. E!",
-  "version": "1.4.2",
+  "version": "1.4.3",
   "permissions" : ["management"],
   "chrome_url_overrides": {
     "newtab": "newtab.html"
