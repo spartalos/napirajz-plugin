@@ -1,4 +1,8 @@
 /* Social Network Share */
+var randomButtonTexts = ['STÉG', 'ZAPPA', 'STUNK', 'KONGLON', 'HRANULÁK', 'TADÜN',
+'GLÓTAH', 'SKALÜNT', 'KREDALÁN', 'AMAKUN', 'KANDÁN', 'FLOCSK', 'FLASK', 'VROMPLON', 'VEGANÉZ'
+, 'UDUN', 'FLOKSZON', 'SZLOPAKIKKI', 'ROMMEL', 'RÖTÖPEM'];
+
 var mailToUrl = 'mailto:?subject=Napirajz&body=';
 var mailToIconUrl = './mailto-logo.png';
 
@@ -84,7 +88,7 @@ function getFormattedDate(){
 }
 
 function getRandom(){
-  httpGet('http://kereso.napirajz.hu/abort.php?guppi&json', 
+  httpGet('http://kereso.napirajz.hu/abort.php?guppi&json',
           function(responseRand){
             createRajz(JSON.parse(responseRand));
           });
@@ -96,28 +100,16 @@ function getFirst(responseJson){
   }
 }
 
-function getToday(){
-  var todayParam = getFormattedDate();
-
-  httpGet('http://kereso.napirajz.hu/abort.php?n=1&tol=' + todayParam + '&ig=' + todayParam + '&json', 
-    function(response){
-      var parsedResponse = JSON.parse(response);
-      if(parsedResponse.length == 0){
-        document.getElementById('kepdiv').innerHTML = 'Nem volt feltöltve rajz a napiszörcsre mai dátummal :('
-      }else{
-        createRajz(parsedResponse);
-      }
-    });
+function setButtonText(button){
+  button.innerHTML = randomButtonTexts[Math.floor(Math.random()*randomButtonTexts.length)];
 }
 
 window.onload = function(){
-  var todayButton = document.getElementById('maiDiv');
-  todayButton.onclick = function(){
-    getToday();
-  }
   var randomButton = document.getElementById('randomDiv');
   randomButton.onclick = function(){
     getRandom();
+    setButtonText(this);
   }
+  setButtonText(randomButton);
   getRandom();
-} 
+}
