@@ -3,6 +3,9 @@ var randomButtonTexts = ['STÉG', 'ZAPPA', 'STUNK', 'KONGLON', 'HRANULÁK', 'TAD
 'GLÓTAH', 'SKALÜNT', 'KREDALÁN', 'AMAKUN', 'KANDÁN', 'FLOCSK', 'FLASK', 'VROMPLON', 'VEGANÉZ'
 , 'UDUN', 'FLOKSZON', 'SZLOPAKIKKI', 'ROMMEL', 'RÖTÖPEM'];
 
+var corsProxyUrl = 'https://blooming-mountain-41247.herokuapp.com/';
+var guppiUrl = 'https://kereso.napirajz.hu/abort.php?guppi&json';
+
 var mailToUrl = 'mailto:?subject=Napirajz&body=';
 var mailToIconUrl = './mailto-logo.png';
 
@@ -23,6 +26,8 @@ function httpGet(url, callback){
     }
   }
   xmlHttp.open("GET", url, true);
+
+  xmlHttp.setRequestHeader("Access-Control-Allow-Origin", "*")
   xmlHttp.send(null);
 }
 
@@ -88,7 +93,7 @@ function getFormattedDate(){
 }
 
 function getRandom(){
-  httpGet('http://kereso.napirajz.hu/abort.php?guppi&json',
+  httpGet(corsProxyUrl + guppiUrl,
           function(responseRand){
             createRajz(JSON.parse(responseRand));
           });
