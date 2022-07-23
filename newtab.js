@@ -88,7 +88,7 @@ function getFormattedDate(){
 }
 
 function getRandom(){
-  httpGet('http://kereso.napirajz.hu/abort.php?guppi&json',
+  httpGet('https://kereso.napirajz.hu/abort.php?guppi&json',
           function(responseRand){
             createRajz(JSON.parse(responseRand));
           });

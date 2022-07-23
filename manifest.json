@@ -1,10 +1,9 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
 
   "name": "Napirajz plugin",
   "description": "Napirajz már a böngésződben is. Új tab-ra kattintva aktuális vagy random rajzok rombolják a munkakedvet. E!",
-  "version": "1.4.3",
-  "permissions" : ["management"],
+  "version": "1.4.4",
   "chrome_url_overrides": {
     "newtab": "newtab.html"
   },
@@ -12,7 +11,6 @@
            "48": "napirajz-logo48.png",
           "128": "napirajz-logo.png" },
   "permissions": [
-    "activeTab",
-    "http://kereso.napirajz.hu/"
+    "management"
   ]
 }
