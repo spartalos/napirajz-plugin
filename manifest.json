@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
 
-  "name": "Napirajz plugin",
-  "description": "Napirajz már a böngésződben is. Új tab-ra kattintva aktuális vagy random rajzok rombolják a munkakedvet. E!",
+  "name": "Napirajz Newtab",
+  "description": "Not so useful plugin which shows random napirajz images on newtab opening.",
   "version": "1.4.4",
   "chrome_url_overrides": {
     "newtab": "newtab.html"
@@ -10,7 +10,5 @@
   "icons": { "16": "napirajz-logo16.png",
            "48": "napirajz-logo48.png",
           "128": "napirajz-logo.png" },
-  "permissions": [
-    "management"
-  ]
+  "permissions": []
 }
