@@ -6,8 +6,8 @@ window.Napirajz.Game = (function () {
   const PLAYER_X = 80;
   const GRAVITY = 0.6;
   const JUMP_FORCE = -14;
-  const BASE_SPEED = 5;
-  const SPEED_INCREMENT = 0.001;
+  const BASE_SPEED = 7;
+  const SPEED_INCREMENT = 0.002;
 
   let canvas, ctx;
   let animFrame = null;
@@ -16,6 +16,23 @@ window.Napirajz.Game = (function () {
 
   let player, obstacles, score, speed, frameCount;
   let highScore = 0;
+  let listenersAttached = false;
+
+  const playerSprite = new Image();
+  playerSprite.src = 'icons/tibi.png';
+
+  // Add new enemy image filenames here to include them in the game
+  const ENEMY_SOURCES = [
+    'icons/ellenseg.png',
+    'icons/kutya.png',
+    'icons/neni2-enemy.jpg',
+  ];
+
+  const enemySprites = ENEMY_SOURCES.map((src) => {
+    const img = new Image();
+    img.src = src;
+    return img;
+  });
 
   // Wobble helper — gives a sketchy hand-drawn offset
   function wobble(base, amount) {
@@ -25,12 +42,11 @@ window.Napirajz.Game = (function () {
   function initPlayer() {
     player = {
       x: PLAYER_X,
-      y: GROUND_Y - 50,
+      y: GROUND_Y - 70,
       vy: 0,
-      width: 28,
-      height: 50,
+      width: 45,
+      height: 70,
       grounded: true,
-      wobbleOffset: 0,
     };
   }
 
@@ -57,134 +73,37 @@ window.Napirajz.Game = (function () {
   }
 
   function drawPlayer() {
-    ctx.save();
-    ctx.strokeStyle = '#434343';
-    ctx.lineWidth = 2.5;
-    ctx.fillStyle = '#f5f0e8';
-
-    const x = player.x;
-    const y = player.y;
-    const w = 2; // wobble amount (subtle while running)
-
-    // Body — slightly wobbly rectangle
-    ctx.beginPath();
-    ctx.moveTo(wobble(x + 4, w), wobble(y + 15, w));
-    ctx.quadraticCurveTo(
-      wobble(x + player.width / 2, w), wobble(y + 12, w),
-      wobble(x + player.width - 4, w), wobble(y + 15, w)
-    );
-    ctx.quadraticCurveTo(
-      wobble(x + player.width, w), wobble(y + player.height * 0.6, w),
-      wobble(x + player.width - 4, w), wobble(y + player.height, w)
-    );
-    ctx.quadraticCurveTo(
-      wobble(x + player.width / 2, w), wobble(y + player.height + 3, w),
-      wobble(x + 4, w), wobble(y + player.height, w)
-    );
-    ctx.quadraticCurveTo(
-      wobble(x, w), wobble(y + player.height * 0.6, w),
-      wobble(x + 4, w), wobble(y + 15, w)
-    );
-    ctx.fill();
-    ctx.stroke();
-
-    // Head
-    ctx.beginPath();
-    ctx.arc(
-      wobble(x + player.width / 2, w),
-      wobble(y + 8, w),
-      wobble(10, w),
-      0, Math.PI * 2
-    );
-    ctx.fill();
-    ctx.stroke();
-
-    // Eye
-    ctx.beginPath();
-    ctx.arc(x + player.width / 2 + 3, y + 6, 2, 0, Math.PI * 2);
-    ctx.fillStyle = '#434343';
-    ctx.fill();
-
-    ctx.restore();
+    ctx.drawImage(playerSprite, player.x, player.y, player.width, player.height);
   }
 
-  const OBSTACLE_TYPES = ['cat', 'cup', 'can'];
-
   function drawObstacle(obs) {
-    ctx.save();
-    ctx.strokeStyle = '#A7144C';
-    ctx.lineWidth = 2;
-    ctx.fillStyle = '#f5f0e8';
-    const w = 2;
-
-    if (obs.type === 'cat') {
-      // Simple cat silhouette
-      ctx.beginPath();
-      ctx.moveTo(wobble(obs.x + 5, w), wobble(obs.y + obs.h, w));
-      ctx.lineTo(wobble(obs.x + 5, w), wobble(obs.y + 8, w));
-      ctx.lineTo(wobble(obs.x + 2, w), wobble(obs.y, w)); // left ear
-      ctx.lineTo(wobble(obs.x + 10, w), wobble(obs.y + 8, w));
-      ctx.lineTo(wobble(obs.x + obs.w - 10, w), wobble(obs.y + 8, w));
-      ctx.lineTo(wobble(obs.x + obs.w - 2, w), wobble(obs.y, w)); // right ear
-      ctx.lineTo(wobble(obs.x + obs.w - 5, w), wobble(obs.y + 8, w));
-      ctx.lineTo(wobble(obs.x + obs.w - 5, w), wobble(obs.y + obs.h, w));
-      ctx.closePath();
-      ctx.fill();
-      ctx.stroke();
-    } else if (obs.type === 'cup') {
-      // Coffee cup
-      ctx.beginPath();
-      ctx.moveTo(wobble(obs.x + 3, w), wobble(obs.y, w));
-      ctx.lineTo(wobble(obs.x + obs.w - 3, w), wobble(obs.y, w));
-      ctx.lineTo(wobble(obs.x + obs.w, w), wobble(obs.y + obs.h, w));
-      ctx.lineTo(wobble(obs.x, w), wobble(obs.y + obs.h, w));
-      ctx.closePath();
-      ctx.fill();
-      ctx.stroke();
-      // Handle
-      ctx.beginPath();
-      ctx.arc(obs.x + obs.w + 4, obs.y + obs.h * 0.55, 7, -Math.PI / 2, Math.PI / 2);
-      ctx.stroke();
-    } else {
-      // Trash can
-      ctx.beginPath();
-      ctx.rect(wobble(obs.x + 2, w), wobble(obs.y + 4, w), obs.w - 4, obs.h - 4);
-      ctx.fill();
-      ctx.stroke();
-      // Lid
-      ctx.beginPath();
-      ctx.rect(wobble(obs.x, w), wobble(obs.y, w), obs.w, 5);
-      ctx.fill();
-      ctx.stroke();
-      // Lines
-      for (let i = 1; i < 3; i++) {
-        ctx.beginPath();
-        ctx.moveTo(obs.x + obs.w * 0.3 * i, obs.y + 8);
-        ctx.lineTo(obs.x + obs.w * 0.3 * i, obs.y + obs.h - 2);
-        ctx.stroke();
-      }
-    }
-    ctx.restore();
+    ctx.drawImage(obs.sprite, obs.x, obs.y, obs.w, obs.h);
   }
 
   function spawnObstacle() {
-    const type = OBSTACLE_TYPES[Math.floor(Math.random() * OBSTACLE_TYPES.length)];
-    const h = 30 + Math.floor(Math.random() * 25);
-    const w = 22 + Math.floor(Math.random() * 16);
+    const sprite = enemySprites[Math.floor(Math.random() * enemySprites.length)];
+    const h = 55 + Math.floor(Math.random() * 20);
+    const w = Math.floor(h * 1.3);
     obstacles.push({
       x: canvas.width + 20,
       y: GROUND_Y - h,
       w,
       h,
-      type,
+      sprite,
     });
   }
 
   function updateObstacles() {
-    const gap = Math.max(60, 120 - score * 0.1);
-    const spawnInterval = Math.max(50, Math.floor(gap / speed * 60));
-    if (frameCount % spawnInterval === 0) {
+    // Random gaps: 300-700px between enemies, shrinking slightly with score
+    const minGap = Math.max(400, 600 - Math.floor(score * 0.2));
+    const maxGap = Math.max(700, 1400 - Math.floor(score * 0.3));
+    if (obstacles.length === 0 && frameCount > 90) {
       spawnObstacle();
+    } else {
+      const last = obstacles[obstacles.length - 1];
+      if (last && last.x < canvas.width - (minGap + Math.floor(Math.random() * (maxGap - minGap)))) {
+        spawnObstacle();
+      }
     }
     for (let i = obstacles.length - 1; i >= 0; i--) {
       obstacles[i].x -= speed;
@@ -226,7 +145,7 @@ window.Napirajz.Game = (function () {
   function drawGameOver() {
     ctx.save();
     ctx.font = 'bold 28px Patrick Hand, cursive';
-    ctx.fillStyle = '#A7144C';
+    ctx.fillStyle = '#2ea2cc';
     ctx.textAlign = 'center';
     ctx.fillText('Vége!', canvas.width / 2, canvas.height / 2 - 10);
     ctx.font = '18px Patrick Hand, cursive';
@@ -334,17 +253,23 @@ window.Napirajz.Game = (function () {
     const hsEl = document.getElementById('high-score');
     if (hsEl) hsEl.textContent = highScore;
 
-    // Draw initial idle state
+    // Draw initial idle state with proper state
+    initState();
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawGround();
+    drawPlayer();
 
-    canvas.addEventListener('click', handleInput);
-    document.addEventListener('keydown', (e) => {
-      if (e.code === 'Space' || e.key === ' ') {
-        e.preventDefault();
-        handleInput();
-      }
-    });
+    // Only attach listeners once
+    if (!listenersAttached) {
+      listenersAttached = true;
+      canvas.addEventListener('click', handleInput);
+      document.addEventListener('keydown', (e) => {
+        if (e.code === 'Space' || e.key === ' ') {
+          e.preventDefault();
+          handleInput();
+        }
+      });
+    }
   }
 
   function stop() {

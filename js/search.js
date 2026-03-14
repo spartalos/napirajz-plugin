@@ -5,6 +5,7 @@ window.Napirajz.Search = (function () {
   let currentEngine = 'google'; // 'google' | 'napirajz'
   let onComicSelect = null;
   let searchTimeout = null;
+  let lastResults = null;
 
   const LABELS = {
     google: 'G',
@@ -32,6 +33,12 @@ window.Napirajz.Search = (function () {
       const next = currentEngine === 'google' ? 'napirajz' : 'google';
       setEngine(next);
       window.Napirajz.Storage.setSearchEngine(next);
+      if (next === 'google') {
+        hideResults(results);
+      } else {
+        const q = input.value.trim();
+        if (q.length >= 2) liveSearch(q, results);
+      }
     });
 
     submit.addEventListener('click', () => doSearch(input.value.trim(), results));
@@ -53,6 +60,16 @@ window.Napirajz.Search = (function () {
         return;
       }
       searchTimeout = setTimeout(() => liveSearch(q, results), 350);
+    });
+
+    input.addEventListener('focus', () => {
+      if (currentEngine !== 'napirajz') return;
+      const q = input.value.trim();
+      if (lastResults && lastResults.length > 0) {
+        renderResults(lastResults, results);
+      } else if (q.length >= 2) {
+        liveSearch(q, results);
+      }
     });
 
     // Close results when clicking outside
@@ -85,12 +102,14 @@ window.Napirajz.Search = (function () {
       return;
     }
 
-    // Napirajz archive search
+    // Napirajz: open kereso.napirajz.hu with the query (no &json)
+    window.open(`https://kereso.napirajz.hu/abort.php?q=${encodeURIComponent(query)}`, '_blank', 'noopener');
     liveSearch(query, resultsEl);
   }
 
   async function liveSearch(query, resultsEl) {
     const results = await window.Napirajz.API.searchComics(query);
+    lastResults = results;
     renderResults(results, resultsEl);
   }
 
@@ -117,15 +136,25 @@ window.Napirajz.Search = (function () {
         item.appendChild(img);
       }
 
+      const textWrap = document.createElement('div');
+      textWrap.className = 'search-result-text';
+
       const title = document.createElement('span');
       title.className = 'search-result-title';
       title.textContent = comic.title || comic.pageUrl || '';
-      item.appendChild(title);
+      textWrap.appendChild(title);
+
+      if (comic.dialogue) {
+        const dialogue = document.createElement('span');
+        dialogue.className = 'search-result-dialogue';
+        dialogue.textContent = comic.dialogue;
+        textWrap.appendChild(dialogue);
+      }
+
+      item.appendChild(textWrap);
 
       const select = () => {
         if (onComicSelect) onComicSelect(comic);
-        resultsEl.hidden = true;
-        document.getElementById('search-input').value = '';
       };
 
       item.addEventListener('click', select);

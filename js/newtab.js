@@ -15,14 +15,7 @@
   function showEl(el) { el.hidden = false; }
   function hideEl(el) { el.hidden = true; }
 
-  function showSkeleton() {
-    showEl(document.getElementById('skeleton'));
-    hideEl(document.getElementById('comic-container'));
-    hideEl(document.getElementById('error-container'));
-  }
-
   function showComic(comic) {
-    hideEl(document.getElementById('skeleton'));
     hideEl(document.getElementById('error-container'));
 
     const container = document.getElementById('comic-container');
@@ -42,13 +35,20 @@
     img.src = comic.url || '';
     img.alt = comic.title || 'Napirajz';
 
+    // Telex source badge
+    const badge = document.getElementById('telex-badge');
+    if (comic.source === 'telex') {
+      badge.hidden = false;
+    } else {
+      badge.hidden = true;
+    }
+
     window.Napirajz.Share.render(document.getElementById('share-container'), comic);
 
     showEl(container);
   }
 
   function showError(message) {
-    hideEl(document.getElementById('skeleton'));
     hideEl(document.getElementById('comic-container'));
     const errorEl = document.getElementById('error-message');
     errorEl.textContent = message || 'Valami elromlott...';
@@ -66,16 +66,31 @@
     window.Napirajz.Game.init();
   }
 
+  let latestList = [];
+  let latestIndex = 0;
+
+  function isPatreon(comic) {
+    const url = (comic.url || '') + (comic.pageUrl || '');
+    return url.toLowerCase().includes('patreon');
+  }
+
   // --- Comic loading ---
   async function loadComic(mode) {
-    showSkeleton();
-
     let comic = null;
+
     if (mode === 'latest') {
-      comic = await window.Napirajz.RSS.fetchLatestComic();
+      latestList = (await window.Napirajz.RSS.fetchLatestComics()).filter(c => !isPatreon(c));
+      latestIndex = 0;
+      comic = latestList[0] || null;
     }
-    if (!comic) {
-      comic = await window.Napirajz.API.fetchRandomComic();
+
+    // For random (or latest fallback), retry up to 5 times to skip patreon entries
+    if (!comic || isPatreon(comic)) {
+      let attempts = 0;
+      do {
+        comic = await window.Napirajz.API.fetchRandomComic();
+        attempts++;
+      } while (comic && isPatreon(comic) && attempts < 5);
     }
 
     if (!comic) {
@@ -85,6 +100,14 @@
     }
 
     await window.Napirajz.Storage.cacheComic(comic);
+    showComic(comic);
+  }
+
+  function loadNextLatest() {
+    if (latestList.length === 0) return;
+    latestIndex = (latestIndex + 1) % latestList.length;
+    const comic = latestList[latestIndex];
+    window.Napirajz.Storage.cacheComic(comic);
     showComic(comic);
   }
 
@@ -126,7 +149,6 @@
     // Show cached comic immediately while fetching fresh
     const cached = await Storage.getCachedComic();
     if (cached) {
-      hideEl(document.getElementById('skeleton'));
       showComic(cached);
     }
 
@@ -145,18 +167,36 @@
       await loadComic('latest');
     });
 
-    // Random button
+    // Random button — cycles latest in Legújabb mode, random otherwise
     const randomBtn = document.getElementById('random-button');
     randomBtn.textContent = randomButtonText();
     randomBtn.addEventListener('click', async () => {
       randomBtn.textContent = randomButtonText();
-      await loadComic('random');
+      if (currentMode === 'latest' && latestList.length > 1) {
+        loadNextLatest();
+      } else {
+        await loadComic('random');
+      }
     });
 
     // Retry button
     document.getElementById('retry-button').addEventListener('click', async () => {
       await loadComic(currentMode);
     });
+
+    // Easter egg — click the fox on neni2's shirt to start the game
+    const neniRight = document.querySelector('.neni-right');
+    if (neniRight) {
+      neniRight.addEventListener('click', (e) => {
+        const rect = neniRight.getBoundingClientRect();
+        const relX = (e.clientX - rect.left) / rect.width;
+        const relY = (e.clientY - rect.top) / rect.height;
+        // Fox nose hotspot: ~55-72% from left, ~55-70% from top
+        if (relX >= 0.55 && relX <= 0.72 && relY >= 0.55 && relY <= 0.70) {
+          showGameArea();
+        }
+      });
+    }
 
     // Search
     window.Napirajz.Search.init((comic) => {

@@ -15,6 +15,7 @@
   "permissions": ["storage"],
   "host_permissions": [
     "https://kereso.napirajz.hu/*",
-    "https://napirajz.hu/*"
+    "https://napirajz.hu/*",
+    "https://telex.hu/*"
   ]
 }

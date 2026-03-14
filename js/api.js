@@ -14,6 +14,7 @@ window.Napirajz.API = (function () {
       url: entry.URL || '',
       pageUrl: entry.LapURL || entry.URL || '',
       title: entry.Cim || '',
+      dialogue: entry.Parbeszed || '',
     };
   }
 
@@ -31,7 +32,7 @@ window.Napirajz.API = (function () {
   async function searchComics(query) {
     if (!query) return [];
     try {
-      const url = `${BASE}?q=${encodeURIComponent(query)}&hely=st&json`;
+      const url = `${BASE}?q=${encodeURIComponent(query)}&json`;
       const res = await fetch(url);
       if (!res.ok) return [];
       const data = await res.json();
@@ -40,6 +41,7 @@ window.Napirajz.API = (function () {
         url: entry.URL || '',
         pageUrl: entry.LapURL || entry.URL || '',
         title: entry.Cim || '',
+        dialogue: entry.Parbeszed || '',
       }));
     } catch (_) {
       return [];
