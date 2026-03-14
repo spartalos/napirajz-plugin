@@ -1,0 +1,52 @@
+/* ===== Offline Dino Game Styles ===== */
+
+#game-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 20px 0;
+}
+
+.offline-message {
+  font-size: 1.4rem;
+  color: #2ea2cc;
+  font-style: italic;
+  margin: 0;
+}
+
+#game-canvas {
+  border: 2px solid var(--color-border);
+  border-radius: 6px 18px 6px 18px / 18px 6px 18px 6px;
+  box-shadow: 3px 4px 0 var(--color-border);
+  background-color: #ffffff;
+  max-width: 100%;
+  cursor: pointer;
+  display: block;
+}
+
+#game-score {
+  display: flex;
+  gap: 24px;
+  font-size: 1.1rem;
+  color: var(--color-text);
+}
+
+#game-score span {
+  font-weight: bold;
+}
+
+.game-hint {
+  font-size: 1rem;
+  color: #888;
+  font-style: italic;
+  margin: 0;
+}
+
+.game-over-overlay {
+  font-size: 1.3rem;
+  color: var(--color-accent);
+  font-weight: bold;
+  margin-top: 4px;
+}

@@ -3,12 +3,19 @@
 
   "name": "Napirajz Newtab",
   "description": "Not so useful plugin which shows random napirajz images on newtab opening.",
-  "version": "1.4.4",
+  "version": "2.0.0",
   "chrome_url_overrides": {
     "newtab": "newtab.html"
   },
-  "icons": { "16": "napirajz-logo16.png",
-           "48": "napirajz-logo48.png",
-          "128": "napirajz-logo.png" },
-  "permissions": []
+  "icons": {
+    "16": "icons/napirajz-logo16.png",
+    "48": "icons/napirajz-logo48.png",
+    "128": "icons/napirajz-logo.png"
+  },
+  "permissions": ["storage"],
+  "host_permissions": [
+    "https://kereso.napirajz.hu/*",
+    "https://napirajz.hu/*",
+    "https://telex.hu/*"
+  ]
 }

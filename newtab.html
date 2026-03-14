@@ -1,64 +1,95 @@
-<!doctype html>
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Új lap – Napirajz</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/game.css">
+</head>
+<body>
+  <img src="icons/neni1.jpg" alt="" class="neni neni-left" aria-hidden="true">
+  <img src="icons/neni2.jpg" alt="" class="neni neni-right" aria-hidden="true">
+  <div id="app">
 
-<html>
-  <head>
-    <title>Új lap</title>
+    <!-- Header: Search -->
+    <header id="site-header">
+      <div id="search-bar">
+        <button id="search-engine-toggle" class="sketchy-button icon-button" aria-label="Keresőmotor váltása">G</button>
+        <input
+          id="search-input"
+          class="sketchy-input"
+          type="text"
+          placeholder="Keresés..."
+          aria-label="Keresés"
+          autocomplete="off"
+        >
+        <button id="search-submit" class="sketchy-button" aria-label="Keresés indítása">Keres</button>
+      </div>
+      <div id="search-results" class="search-dropdown" hidden></div>
+    </header>
 
-    <meta HTTP-EQUIV="Content-Type" Content="text/html; Charset=utf-8">
-    <meta HTTP-EQUIV="Content-Language" Content="hu">
-    <script src="newtab.js"></script>
-    <style>
-      .button {
-        background-color: #3B5998;
-        border: none;
-        color: white;
-        padding: 15px 32px;
-        text-align: center;
-        text-decoration: none;
-        display: inline-block;
-        font-size: 16px;
-        font-weight: bold;
-        margin: 10px;
-        width: 100px;
-        cursor: pointer;
-      }
+    <!-- Main: Comic area -->
+    <main id="comic-area">
+      <div id="mode-toggle">
+        <button id="btn-random" class="sketchy-button mode-btn active" aria-pressed="true">Véletlenül</button>
+        <button id="btn-latest" class="sketchy-button mode-btn" aria-pressed="false">Legújabb</button>
+      </div>
 
-      /* unvisited link */
-      a:link {
-        color: #2A4F6E;
-      }
+      <!-- Comic display -->
+      <div id="comic-container" hidden>
+        <h2 id="comic-title"></h2>
+        <a id="comic-link" href="#" target="_blank" rel="noopener">
+          <img id="comic-image" src="" alt="" loading="lazy">
+          <img id="telex-badge" src="icons/telex-logo.png" alt="Telex" class="telex-badge" hidden>
+        </a>
+        <div id="share-container" role="toolbar" aria-label="Megosztás"></div>
+        <button id="random-button" class="sketchy-button">STÉG</button>
+      </div>
 
-      /* visited link */
-      a:visited {
-        color: #2A4F6E;
-      }
+      <!-- Error state -->
+      <div id="error-container" hidden>
+        <p id="error-message" class="error-text">Valami elromlott...</p>
+        <button id="retry-button" class="sketchy-button">Újra próbálom</button>
+      </div>
+    </main>
 
-      /* selected link */
-      a:active {
-        color: blue;
-      }
-
-    </style>
-  </head>
-  <body>
-  <div id="container" style="text-align: center;">
-    <div id="wrapper" style="text-align: center; font-size: 18px;">
-      <div id="cimDiv"></div>
-      <div id="kepdiv" style="display: inline-block;"></div>
-      </br>
-      <div id="shareContainer"></div>
-      <div id="randomDiv" class="button">STÉG</div>
-      </br>
-      <h3>Források:</h3>
-      <a href="http://www.napirajz.hu">napirajz.hu</a>
-      </br>
-      <a href="https://telex.hu/rovat/napirajz">telex.hu/napirajz</a>
-      </br>
-      <a href="https://www.patreon.com/grafitember">Rajzok megtalálhatóak a patreon!</a>
-      </br>
-      <h3>Napiszörcs:</h3>
-      <a href="http://kereso.napirajz.hu/">kereso.napirajz.hu</a>
+    <!-- Offline game area -->
+    <div id="game-area" hidden>
+      <p class="offline-message">Nincs net... de van játék!</p>
+      <canvas id="game-canvas" width="800" height="300" aria-label="Offline játék"></canvas>
+      <div id="game-score">
+        <span>Pont: <span id="current-score">0</span></span>
+        <span>Legjobb: <span id="high-score">0</span></span>
+      </div>
+      <p id="game-message" class="game-hint">Nyomj szóközt vagy kattints a játékhoz!</p>
     </div>
+
+    <!-- Footer -->
+    <footer id="site-footer">
+      <h3>Források:</h3>
+      <nav aria-label="Napirajz linkek">
+        <a href="https://www.napirajz.hu" target="_blank" rel="noopener">napirajz.hu</a>
+        <a href="https://telex.hu/rovat/napirajz" target="_blank" rel="noopener">telex.hu/napirajz</a>
+        <a href="https://www.patreon.com/grafitember" target="_blank" rel="noopener">Patreon</a>
+        <a href="https://www.facebook.com/groups/7457216827" target="_blank" rel="noopener">Facebook csoport</a>
+      </nav>
+      <h3>Napiszörcs:</h3>
+      <a href="https://kereso.napirajz.hu/" target="_blank" rel="noopener">kereso.napirajz.hu</a>
+    </footer>
+
   </div>
-  </body>
+
+  <script src="js/storage.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/rss.js"></script>
+  <script src="js/share.js"></script>
+  <script src="js/search.js"></script>
+  <script src="js/game.js"></script>
+  <script src="js/offline.js"></script>
+  <script src="js/newtab.js"></script>
+</body>
 </html>
