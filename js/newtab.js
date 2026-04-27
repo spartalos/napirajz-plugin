@@ -26,7 +26,11 @@
   function showEl(el) { el.hidden = false; }
   function hideEl(el) { el.hidden = true; }
 
-  function showComic(comic) {
+  async function showComic(comic) {
+    if (seenTimer) {
+      clearTimeout(seenTimer);
+      seenTimer = null;
+    }
     hideEl(document.getElementById('error-container'));
 
     const container = document.getElementById('comic-container');
@@ -36,6 +40,8 @@
 
     // XSS-safe: use textContent, not innerHTML
     title.textContent = comic.title || '';
+    const seen = await window.Napirajz.Storage.isSeen(comic);
+    title.classList.toggle('seen', seen);
     link.href = comic.pageUrl || comic.url || '#';
 
     const freshRow = document.getElementById('comic-fresh-row');
@@ -45,6 +51,18 @@
       freshRow.hidden = false;
     } else {
       freshRow.hidden = true;
+    }
+
+    const dot = freshRow.querySelector('.pulse-dot');
+    dot.classList.toggle('seen', seen);
+
+    if (!seen) {
+      seenTimer = setTimeout(async () => {
+        seenTimer = null;
+        await window.Napirajz.Storage.markSeen(comic);
+        title.classList.add('seen');
+        dot.classList.add('seen');
+      }, 2000);
     }
 
     img.classList.add('loading');
@@ -88,6 +106,7 @@
 
   let latestList = [];
   let latestIndex = 0;
+  let seenTimer = null;
 
   function isPatreon(comic) {
     const url = (comic.url || '') + (comic.pageUrl || '');
@@ -123,12 +142,12 @@
     showComic(comic);
   }
 
-  function loadNextLatest() {
+  async function loadNextLatest() {
     if (latestList.length === 0) return;
     latestIndex = (latestIndex + 1) % latestList.length;
     const comic = latestList[latestIndex];
-    window.Napirajz.Storage.cacheComic(comic);
-    showComic(comic);
+    await window.Napirajz.Storage.cacheComic(comic);
+    await showComic(comic);
   }
 
   // --- Mode toggle ---
@@ -193,7 +212,7 @@
     randomBtn.addEventListener('click', async () => {
       randomBtn.textContent = randomButtonText();
       if (currentMode === 'latest' && latestList.length > 1) {
-        loadNextLatest();
+        await loadNextLatest();
       } else {
         await loadComic('random');
       }
