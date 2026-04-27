@@ -453,3 +453,7 @@ a:active {
 .title-row:has(.pulse-dot.seen) {
   color: #9a9a9a;
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse-dot { animation: none; }
+}
