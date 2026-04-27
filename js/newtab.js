@@ -27,6 +27,7 @@
   function hideEl(el) { el.hidden = true; }
 
   async function showComic(comic) {
+    const myToken = ++showToken;
     if (seenTimer) {
       clearTimeout(seenTimer);
       seenTimer = null;
@@ -60,6 +61,7 @@
       seenTimer = setTimeout(async () => {
         seenTimer = null;
         await window.Napirajz.Storage.markSeen(comic);
+        if (showToken !== myToken) return;
         title.classList.add('seen');
         dot.classList.add('seen');
       }, 2000);
@@ -107,6 +109,7 @@
   let latestList = [];
   let latestIndex = 0;
   let seenTimer = null;
+  let showToken = 0;
 
   function isPatreon(comic) {
     const url = (comic.url || '') + (comic.pageUrl || '');
