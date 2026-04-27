@@ -11,6 +11,17 @@
     return randomButtonTexts[Math.floor(Math.random() * randomButtonTexts.length)];
   }
 
+  function freshAdjective(pubDateMs, nowMs) {
+    if (!pubDateMs) return null;
+    const ageHours = (nowMs - pubDateMs) / 3_600_000;
+    if (ageHours < 0) return 'mai';
+    if (ageHours > 168) return null;
+    const days = Math.floor(ageHours / 24);
+    if (days === 0) return 'mai';
+    if (days === 1) return 'tegnapi';
+    return `${days} napos`;
+  }
+
   // --- DOM helpers ---
   function showEl(el) { el.hidden = false; }
   function hideEl(el) { el.hidden = true; }
@@ -26,6 +37,15 @@
     // XSS-safe: use textContent, not innerHTML
     title.textContent = comic.title || '';
     link.href = comic.pageUrl || comic.url || '#';
+
+    const freshRow = document.getElementById('comic-fresh-row');
+    const ago = freshAdjective(comic.pubDate, Date.now());
+    if (ago) {
+      freshRow.querySelector('.fresh-ago').textContent = ago;
+      freshRow.hidden = false;
+    } else {
+      freshRow.hidden = true;
+    }
 
     img.classList.add('loading');
     img.onload = () => {
