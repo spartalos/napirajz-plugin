@@ -440,18 +440,41 @@ a:active {
   font-size: 0.9rem;
 }
 
-#comic-title.seen {
-  color: #9a9a9a;
-}
-
-.pulse-dot.seen {
+.pulse-dot.stale {
   background: #9a9a9a;
   box-shadow: none;
   animation: none;
 }
 
-.title-row:has(.pulse-dot.seen) {
+.comic-title-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.seen-eye {
+  display: inline-flex;
+  align-items: center;
   color: #9a9a9a;
+  cursor: help;
+  transition: color 0.15s ease;
+  flex-shrink: 0;
+}
+
+.seen-eye:hover {
+  color: var(--color-text);
+}
+
+.seen-eye svg {
+  width: 22px;
+  height: 22px;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transform: rotate(-2deg);
 }
 
 @media (prefers-reduced-motion: reduce) {
