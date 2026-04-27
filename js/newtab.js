@@ -11,12 +11,14 @@
     return randomButtonTexts[Math.floor(Math.random() * randomButtonTexts.length)];
   }
 
-  function freshAdjective(pubDateMs, nowMs) {
+  function ageInDays(pubDateMs, nowMs) {
     if (!pubDateMs) return null;
     const ageHours = (nowMs - pubDateMs) / 3_600_000;
-    if (ageHours < 0) return 'mai';
-    if (ageHours > 168) return null;
-    const days = Math.floor(ageHours / 24);
+    if (ageHours < 0) return 0;
+    return Math.floor(ageHours / 24);
+  }
+
+  function dayAdjective(days) {
     if (days === 0) return 'mai';
     if (days === 1) return 'tegnapi';
     return `${days} napos`;
@@ -26,7 +28,7 @@
   function showEl(el) { el.hidden = false; }
   function hideEl(el) { el.hidden = true; }
 
-  async function showComic(comic) {
+  async function showComic(comic, mode) {
     const myToken = ++showToken;
     if (seenTimer) {
       clearTimeout(seenTimer);
@@ -42,28 +44,32 @@
     // XSS-safe: use textContent, not innerHTML
     title.textContent = comic.title || '';
     const seen = await window.Napirajz.Storage.isSeen(comic);
-    title.classList.toggle('seen', seen);
     link.href = comic.pageUrl || comic.url || '#';
 
     const freshRow = document.getElementById('comic-fresh-row');
-    const ago = freshAdjective(comic.pubDate, Date.now());
-    if (ago) {
-      freshRow.querySelector('.fresh-ago').textContent = ago;
+    const seenEye = document.getElementById('seen-eye');
+    const days = ageInDays(comic.pubDate, Date.now());
+    const fresh = days !== null && days <= 7;
+    const showRow = days !== null && (fresh || mode === 'latest');
+
+    if (showRow) {
+      freshRow.querySelector('.fresh-ago').textContent = dayAdjective(days);
       freshRow.hidden = false;
     } else {
       freshRow.hidden = true;
     }
 
     const dot = freshRow.querySelector('.pulse-dot');
-    dot.classList.toggle('seen', seen);
+    dot.classList.toggle('stale', showRow && !fresh);
+
+    seenEye.hidden = !seen;
 
     if (!seen) {
       seenTimer = setTimeout(async () => {
         seenTimer = null;
         await window.Napirajz.Storage.markSeen(comic);
         if (showToken !== myToken) return;
-        title.classList.add('seen');
-        dot.classList.add('seen');
+        seenEye.hidden = false;
       }, 2000);
     }
 
@@ -142,7 +148,7 @@
     }
 
     await window.Napirajz.Storage.cacheComic(comic);
-    showComic(comic);
+    showComic(comic, mode);
   }
 
   async function loadNextLatest() {
@@ -150,7 +156,7 @@
     latestIndex = (latestIndex + 1) % latestList.length;
     const comic = latestList[latestIndex];
     await window.Napirajz.Storage.cacheComic(comic);
-    await showComic(comic);
+    await showComic(comic, 'latest');
   }
 
   // --- Mode toggle ---
@@ -191,7 +197,7 @@
     // Show cached comic immediately while fetching fresh
     const cached = await Storage.getCachedComic();
     if (cached) {
-      showComic(cached);
+      showComic(cached, currentMode);
     }
 
     setMode(currentMode, false);
@@ -242,7 +248,7 @@
 
     // Search
     window.Napirajz.Search.init((comic) => {
-      showComic(comic);
+      showComic(comic, 'random');
     });
 
     // Load initial comic if not offline
