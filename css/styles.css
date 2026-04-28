@@ -407,3 +407,99 @@ a:active {
     height: 240px;
   }
 }
+
+/* ===== Fresh + Seen indicators ===== */
+.title-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 0.95rem;
+  color: var(--color-accent);
+  margin: -8px 0 0;
+}
+
+.pulse-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  box-shadow: 0 0 0 0 rgba(46, 162, 204, 0.55);
+  animation: nr-pulse 1.6s ease-out infinite;
+  flex-shrink: 0;
+}
+
+@keyframes nr-pulse {
+  0%   { box-shadow: 0 0 0 0   rgba(46, 162, 204, 0.55); }
+  70%  { box-shadow: 0 0 0 10px rgba(46, 162, 204, 0); }
+  100% { box-shadow: 0 0 0 0   rgba(46, 162, 204, 0); }
+}
+
+.fresh-ago {
+  color: #888;
+  font-size: 0.9rem;
+}
+
+.pulse-dot.stale {
+  background: #9a9a9a;
+  box-shadow: none;
+  animation: none;
+}
+
+.comic-title-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.seen-eye {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  color: #9a9a9a;
+  cursor: help;
+  transition: color 0.15s ease;
+  flex-shrink: 0;
+}
+
+.seen-eye::after {
+  content: 'Megnézted már';
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%) rotate(0.5deg);
+  background: var(--color-bg);
+  border: 1.5px solid var(--color-border);
+  border-radius: 6px 2px 6px 2px / 2px 6px 2px 6px;
+  box-shadow: 1px 2px 0 var(--color-border);
+  padding: 2px 8px;
+  font-size: 0.78rem;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.seen-eye:hover {
+  color: var(--color-text);
+}
+
+.seen-eye:hover::after {
+  opacity: 1;
+}
+
+.seen-eye svg {
+  width: 22px;
+  height: 22px;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transform: rotate(-2deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse-dot { animation: none; }
+}

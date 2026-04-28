@@ -11,11 +11,28 @@
     return randomButtonTexts[Math.floor(Math.random() * randomButtonTexts.length)];
   }
 
+  function ageInDays(pubDateMs, nowMs) {
+    if (!pubDateMs) return null;
+    const ageHours = (nowMs - pubDateMs) / 3_600_000;
+    if (ageHours < 0) return 0;
+    return Math.floor(ageHours / 24);
+  }
+
+  function dayAdjective(days) {
+    if (days === 0) return 'ma';
+    return `${days} napja`;
+  }
+
   // --- DOM helpers ---
   function showEl(el) { el.hidden = false; }
   function hideEl(el) { el.hidden = true; }
 
-  function showComic(comic) {
+  async function showComic(comic, mode) {
+    const myToken = ++showToken;
+    if (seenTimer) {
+      clearTimeout(seenTimer);
+      seenTimer = null;
+    }
     hideEl(document.getElementById('error-container'));
 
     const container = document.getElementById('comic-container');
@@ -25,7 +42,35 @@
 
     // XSS-safe: use textContent, not innerHTML
     title.textContent = comic.title || '';
+    const seen = await window.Napirajz.Storage.isSeen(comic);
     link.href = comic.pageUrl || comic.url || '#';
+
+    const freshRow = document.getElementById('comic-fresh-row');
+    const seenEye = document.getElementById('seen-eye');
+    const days = ageInDays(comic.pubDate, Date.now());
+    const fresh = days !== null && days <= 17;
+    const showRow = days !== null && (fresh || mode === 'latest');
+
+    if (showRow) {
+      freshRow.querySelector('.fresh-ago').textContent = dayAdjective(days);
+      freshRow.hidden = false;
+    } else {
+      freshRow.hidden = true;
+    }
+
+    const dot = freshRow.querySelector('.pulse-dot');
+    dot.classList.toggle('stale', showRow && !fresh);
+
+    seenEye.hidden = !seen;
+
+    if (!seen) {
+      seenTimer = setTimeout(async () => {
+        seenTimer = null;
+        await window.Napirajz.Storage.markSeen(comic);
+        if (showToken !== myToken) return;
+        seenEye.hidden = false;
+      }, 2000);
+    }
 
     img.classList.add('loading');
     img.onload = () => {
@@ -68,6 +113,8 @@
 
   let latestList = [];
   let latestIndex = 0;
+  let seenTimer = null;
+  let showToken = 0;
 
   function isPatreon(comic) {
     const url = (comic.url || '') + (comic.pageUrl || '');
@@ -100,15 +147,19 @@
     }
 
     await window.Napirajz.Storage.cacheComic(comic);
-    showComic(comic);
+    try {
+      await showComic(comic, mode);
+    } catch (_) {
+      showError('Valami elromlott...');
+    }
   }
 
-  function loadNextLatest() {
+  async function loadNextLatest() {
     if (latestList.length === 0) return;
     latestIndex = (latestIndex + 1) % latestList.length;
     const comic = latestList[latestIndex];
-    window.Napirajz.Storage.cacheComic(comic);
-    showComic(comic);
+    await window.Napirajz.Storage.cacheComic(comic);
+    await showComic(comic, 'latest');
   }
 
   // --- Mode toggle ---
@@ -149,7 +200,7 @@
     // Show cached comic immediately while fetching fresh
     const cached = await Storage.getCachedComic();
     if (cached) {
-      showComic(cached);
+      showComic(cached, currentMode);
     }
 
     setMode(currentMode, false);
@@ -173,7 +224,7 @@
     randomBtn.addEventListener('click', async () => {
       randomBtn.textContent = randomButtonText();
       if (currentMode === 'latest' && latestList.length > 1) {
-        loadNextLatest();
+        await loadNextLatest();
       } else {
         await loadComic('random');
       }
@@ -200,7 +251,7 @@
 
     // Search
     window.Napirajz.Search.init((comic) => {
-      showComic(comic);
+      showComic(comic, 'random');
     });
 
     // Load initial comic if not offline
