@@ -19,9 +19,8 @@
   }
 
   function dayAdjective(days) {
-    if (days === 0) return 'mai';
-    if (days === 1) return 'tegnapi';
-    return `${days} napos`;
+    if (days === 0) return 'ma';
+    return `${days} napja`;
   }
 
   // --- DOM helpers ---
@@ -49,7 +48,7 @@
     const freshRow = document.getElementById('comic-fresh-row');
     const seenEye = document.getElementById('seen-eye');
     const days = ageInDays(comic.pubDate, Date.now());
-    const fresh = days !== null && days <= 7;
+    const fresh = days !== null && days <= 17;
     const showRow = days !== null && (fresh || mode === 'latest');
 
     if (showRow) {

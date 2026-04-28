@@ -454,6 +454,7 @@ a:active {
 }
 
 .seen-eye {
+  position: relative;
   display: inline-flex;
   align-items: center;
   color: #9a9a9a;
@@ -462,8 +463,30 @@ a:active {
   flex-shrink: 0;
 }
 
+.seen-eye::after {
+  content: 'Megnézted már';
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%) rotate(0.5deg);
+  background: var(--color-bg);
+  border: 1.5px solid var(--color-border);
+  border-radius: 6px 2px 6px 2px / 2px 6px 2px 6px;
+  box-shadow: 1px 2px 0 var(--color-border);
+  padding: 2px 8px;
+  font-size: 0.78rem;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
 .seen-eye:hover {
   color: var(--color-text);
+}
+
+.seen-eye:hover::after {
+  opacity: 1;
 }
 
 .seen-eye svg {
