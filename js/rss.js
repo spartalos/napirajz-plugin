@@ -18,9 +18,9 @@ window.Napirajz.RSS = (function () {
 
   function parsePubDate(item) {
     const el = item.querySelector('pubDate');
-    if (!el) return 0;
+    if (!el) return null;
     const d = new Date(el.textContent.trim());
-    return isNaN(d.getTime()) ? 0 : d.getTime();
+    return isNaN(d.getTime()) ? null : d.getTime();
   }
 
   function parseNapirajzFeed(xml) {

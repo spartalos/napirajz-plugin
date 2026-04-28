@@ -147,7 +147,11 @@
     }
 
     await window.Napirajz.Storage.cacheComic(comic);
-    showComic(comic, mode);
+    try {
+      await showComic(comic, mode);
+    } catch (_) {
+      showError('Valami elromlott...');
+    }
   }
 
   async function loadNextLatest() {
